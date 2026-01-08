@@ -1,55 +1,46 @@
 <script lang="ts">
-	import { Button, ButtonGroup, Dropdown, DropdownItem, Navbar, NavBrand, NavHamburger, NavLi, NavUl } from 'flowbite-svelte';
-	import { ChevronDownOutline, CloseOutline, HomeOutline } from 'flowbite-svelte-icons';
-	import { _ } from 'svelte-i18n';
+  import { Tabs, TabItem, Button, ButtonGroup } from 'flowbite-svelte';
+  import { _ } from 'svelte-i18n';
+  import { UserCircleSolid, GridSolid, ClipboardSolid } from 'flowbite-svelte-icons';
 
-	import { activeTabId, tabs } from '$lib/stores/tabStore';
-	import type { ClassValue } from 'svelte/elements';
-	import { fly } from 'svelte/transition';
+  import BotListPage from '$lib/pages/BotListPage.svelte';
+  import AboutPage from '$lib/pages/AboutPage.svelte';
+  import ImportPage from '$lib/pages/ImportPage.svelte';
+  interface Props {
+    activeTab?: string;
+  }
 
-	interface Props {
-		class?: ClassValue | undefined | null;
-		onTabClick?: (id?: string) => void;
-		onTabClose?: (id: string) => void;
-	}
+  let { activeTab = $bindable('') }: Props = $props();
 
-	let { class: customClass, onTabClick, onTabClose }: Props = $props();
+  const buttons = [
+    { id: 'bot-list', icon: UserCircleSolid, label: $_('header.botList') },
+    { id: 'import', icon: ClipboardSolid, label: $_('header.import') },
+    { id: 'about', icon: GridSolid, label: $_('header.about') }
+  ];
 
-	let dropDownIsOpen = $state(false);
-
-	function innerOnTabClick(id?: string) {
-		dropDownIsOpen = false;
-
-		if (onTabClick) {
-			onTabClick(id);
-		}
-	}
-
-	function innerOnTabClose(id?: string) {
-		if (!id) {
-			return;
-		}
-
-		dropDownIsOpen = false;
-
-		if (onTabClose) {
-			onTabClose(id);
-		}
-	}
+  function selectTab(tabId: string) {
+    activeTab = tabId;
+  }
 </script>
 
+<div class="flex items-center p-2 dark:bg-gray-800 shadow-md space-x-4">
+  <!-- 标题：在小屏隐藏 -->
+  <h1 class="text-lg font-semibold hidden sm:block">{$_('title') ?? 'ASF Import Tools'}</h1>
 
-<Navbar class={customClass}>
-  <NavBrand href="/">
-    <img src="/images/flowbite-svelte-icon-logo.svg" class="me-3 h-6 sm:h-9" alt="Flowbite Logo" />
-    <span class="self-center text-xl font-semibold whitespace-nowrap dark:text-white">Flowbite</span>
-  </NavBrand>
-  <NavHamburger />
-  <NavUl transition={fly} transitionParams={{ y: -20, duration: 250 }}>
-    <NavLi href="/">Home</NavLi>
-    <NavLi href="/about">About</NavLi>
-    <NavLi href="/docs/components/navbar">Navbar</NavLi>
-    <NavLi href="/pricing">Pricing</NavLi>
-    <NavLi href="/contact">Contact</NavLi>
-  </NavUl>
-</Navbar>
+  <!-- 按钮靠右显示，图标在小屏可见，标签在 sm 及以上显示 -->
+  <div class="ml-auto">
+    <ButtonGroup>
+      {#each buttons as btn}
+        <Button
+          pill
+          color={activeTab === btn.id ? 'primary' : 'light'}
+          size="xs"
+          onclick={() => selectTab(btn.id)}
+        >
+          <btn.icon class="h-4 w-4" />
+          <span class="ml-2">{btn.label}</span>
+        </Button>
+      {/each}
+    </ButtonGroup>
+  </div>
+</div>

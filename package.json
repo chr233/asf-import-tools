@@ -1,8 +1,10 @@
 {
 	"name": "asf-import-tools",
 	"private": true,
-	"version": "0.0.1",
+	"version": "1.0.0",
+	"author": "chr233",
 	"type": "module",
+	"description": "CSGO 提货",
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build",
@@ -11,7 +13,8 @@
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"lint": "eslint . && prettier --check .",
-		"format": "prettier --write ."
+		"format": "prettier --write .",
+		"generateInfo": "pwsh scripts/packageInfo.ps1"
 	},
 	"devDependencies": {
 		"@eslint/compat": "^1.4.0",

@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { activeTabId } from '$lib/stores/tabStore';
 	import { DarkMode, Footer, Button, FooterLink, FooterLinkGroup } from 'flowbite-svelte';
 	import { LanguageOutline } from 'flowbite-svelte-icons';
 	import { _, locale } from 'svelte-i18n';
@@ -14,8 +13,8 @@
 
 	let { class: customClass }: Props = $props();
 
-	function goto(tab: string) {
-		$activeTabId = tab;
+	function goto(id: string) {
+		
 	}
 
 	function toggleLang() {

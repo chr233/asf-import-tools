@@ -1,43 +1,53 @@
 <script lang="ts">
-	import { browser } from '$app/environment';
-	import { activeTabId } from '$lib/stores/tabStore';
-	import { Input } from 'flowbite-svelte';
-	import { onMount } from 'svelte';
-	import { _, locale } from 'svelte-i18n';
-	import type { ClassValue } from 'svelte/elements';
+  import { browser } from '$app/environment';
+  import { Input } from 'flowbite-svelte';
+  import { EyeOutline, EyeSlashOutline } from 'flowbite-svelte-icons';
+  import { onMount } from 'svelte';
+  interface Props {
+    value: string;
+    placeholder?: string | null;
+    saveKey?: string | null;
+  }
 
-	interface Props {
-		class?: ClassValue | undefined | null;
-		value: string;
-		saveKey?: string;
-	}
+  let { value = $bindable(), placeholder, saveKey }: Props = $props();
 
-	let { class: customClass ,
-		value,
-		saveKey}: Props = $props();
+  let showPassword: boolean = $state(false);
 
-	onMount	(() => {
-		if (browser && saveKey) {
-			const saved = localStorage.getItem(saveKey);
-			if (saved) {
-				value = saved;
-			}
-		}
-	});
+  onMount(() => {
+    if (browser && saveKey) {
+      const saved = localStorage.getItem(saveKey);
+      if (saved) {
+        value = saved;
+      }
+    }
+  });
 
-	function saveSettings() {
-		if (browser && saveKey) {
-			localStorage.setItem(saveKey, value);
-		}
-	}
+  function saveSettings() {
+    if (browser && saveKey) {
+      localStorage.setItem(saveKey, value);
+    }
+  }
 
+  function switchShowPassword() {
+    showPassword = !showPassword;
+  }
 </script>
 
 <Input
-		type="password"
-		id="ipc"
-		placeholder={$_('selectorPage.ipcPasswordPlaceholder')}
-		bind:value={value}
-		clearable
-		oninput={saveSettings}
-	/>
+  type={showPassword ? 'text' : 'password'}
+  {placeholder}
+  bind:value
+  clearable
+  class="pl-10"
+  oninput={saveSettings}
+>
+  {#snippet left()}
+    <button onclick={switchShowPassword} class="pointer-events-auto">
+      {#if showPassword}
+        <EyeSlashOutline class="h-6 w-6" />
+      {:else}
+        <EyeOutline class="h-6 w-6" />
+      {/if}
+    </button>
+  {/snippet}
+</Input>
