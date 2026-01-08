@@ -7,6 +7,7 @@
   import BotListPage from '$lib/pages/BotListPage.svelte';
   import AboutPage from '$lib/pages/AboutPage.svelte';
   import ImportPage from '$lib/pages/ImportPage.svelte';
+  import { fade } from 'svelte/transition';
 
   let activeTab = $state('import');
 </script>
@@ -15,7 +16,9 @@
   class="text-gray-500 bg-white dark:bg-gray-900 dark:text-gray-400 sticky flex h-screen w-full flex-col"
 >
   {#await initLocale()}
-    <LoadScreen />
+    <div transition:fade={{ duration: 300 }} class="inset-0 absolute z-50">
+      <LoadScreen />
+    </div>
   {:then}
     <Header bind:activeTab />
 

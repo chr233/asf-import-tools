@@ -7,8 +7,26 @@
   import { onMount } from 'svelte';
   import PasswordInput from '$lib/components/PasswordInput.svelte';
   import type { ImportBotsPayload } from '$lib/models/ImportBotsPayload';
-  import { Button } from 'flowbite-svelte';
+  import {
+    Button,
+    Fileupload,
+    Alert,
+    ButtonGroup,
+    Input,
+    Helper,
+    Skeleton,
+    TableBody,
+    TableBodyCell,
+    Dropzone,
+    TableBodyRow,
+    TableHead,
+    Table,
+    Textarea,
+    TableHeadCell
+  } from 'flowbite-svelte';
   import type { MaFileData } from '$lib/models/MaFileData';
+  import LabelFor from '$lib/components/LabelFor.svelte';
+  import { InfoCircleSolid } from 'flowbite-svelte-icons';
 
   interface Props {}
 
@@ -17,6 +35,8 @@
   let ipcPassword: string = $state('');
 
   let accountText: string = $state('');
+
+  let selectedFiles = $state<FileList | null>(null);
   let folderFiles: File[] | null = $state(null);
   let isDragOver: boolean = $state(false);
   let accountCount: number = $derived.by(updateAccountCount);
@@ -45,6 +65,7 @@
    * 拖拽账号文件导入
    */
   function onAccountFileDrop(event: DragEvent) {
+      event.preventDefault();
     isDragOver = false;
     const files = event.dataTransfer?.files;
     if (files && files.length > 0) {
@@ -136,8 +157,8 @@
           BotName: username,
           SteamLogin: username,
           SteamPassword: password,
-          IdentitySecret: null,
-          SharedSecret: null
+          IdentitySecret: undefined,
+          SharedSecret: undefined
         });
       }
     }
@@ -205,96 +226,103 @@
       const jsonData = await readJsonFile(jsonFile);
       if (jsonData) {
         const { identity_secret, shared_secret } = jsonData;
-        account.IdentitySecret = identity_secret ?? null;
-        account.SharedSecret = shared_secret ?? null;
+        account.IdentitySecret = identity_secret ?? undefined;
+        account.SharedSecret = shared_secret ?? undefined;
       }
     }
 
     importResult = parsedAccounts;
   }
 
+  function toBooleanString(value: any) {
+    return value ? '✅' : '❌';
+  }
+
   onMount(() => {});
 </script>
 
 <div class="space-y-4 p-4 mx-auto h-full w-full">
-  <label class="mb-2 font-medium block" for="ipc">{$_('selectorPage.ipcPassword')}</label>
-  <PasswordInput bind:value={ipcPassword} saveKey="asf-ui:ipc-password" />
+  <LabelFor forId="ipc" text={$_('botListPage.ipcPassword')} />
+  <PasswordInput id="ipc" bind:value={ipcPassword} saveKey="asf-ui:ipc-password" />
 
-  <div class="app">
-    <!-- 账号信息输入区域 -->
-    <div class="section">
-      <h2>账号信息</h2>
-      <textarea
-        bind:value={accountText}
-        on:dragover={() => 'isDragOver = true'}
-        on:dragleave={() => 'isDragOver = false'}
-        on:drop={onAccountFileDrop}
-        class:drag-over={isDragOver}
-        placeholder="每行一个账号，用 ---- 或者, 分隔账号名和密码&#10;例如：username----password"
-      ></textarea>
+  <!-- 账号信息输入区域 -->
+  <LabelFor forId="accounts" text={$_('importPage.accountInfo')} />
+  <div>
+    <Textarea
+      id="accounts"
+      bind:value={accountText}
+      ondragover={(e) => e.preventDefault()}
+      ondrop={onAccountFileDrop}
+      class="min-h-30 w-full"
+      placeholder="每行一个账号，用 ---- 或者, 分隔账号名和密码&#10;例如：username----password"
+    />
 
-      <p>
-        共 {accountCount} 个机器人账号, 支持拖拽文件到文本框中自动读取内容
-      </p>
-      <div class="input-group">
-        <input type="file" on:change={onSelectAccounts} accept="*/txt" />
-      </div>
-    </div>
+    <Helper class="text-sm text-orange-500 dark:text-orange-400 my-2 text-right">
+      共 {accountCount} 个机器人账号, 支持拖拽文件到文本框中自动读取内容
+    </Helper>
+  </div>
 
-    <!-- 文件夹选择区域 -->
-    <div class="section">
-      <h2>令牌信息</h2>
-      <div class="input-group">
-        <input type="file" webkitdirectory multiple on:change={onSelectMaFiles} />
-      </div>
-    </div>
+  <Fileupload id="accountFile" clearable bind:files={selectedFiles} onchange={onSelectAccounts} />
 
-    <div class="section">
-      <Button class="w-full" onclick={doImport}>执行导入</Button>
-    </div>
+  <!-- 文件夹选择区域 -->
+  <LabelFor forId="maFiles" text="令牌信息" />
+  <Fileupload
+    id="maFiles"
+    webkitdirectory
+    clearable
+    bind:files={selectedFiles}
+    multiple
+    onchange={onSelectMaFiles}
+  />
+  <!-- <Dropzone
+    class="border-gray-300 dark:border-gray-600 rounded-md p-4 border-2 border-dashed text-center"
+    ondragover={() => (isDragOver = true)}
+    ondragleave={() => (isDragOver = false)}
+    ondrop={onAccountFileDrop}
+  /> -->
 
-    <!-- 数据表格 -->
-    <div class="section">
-      <h2>导入结果</h2>
-      <div class="table-wrapper">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>账号</th>
-              <th>密码</th>
-              <th>IdentitySecret</th>
-              <th>SharedSecret</th>
-            </tr>
-          </thead>
-          <tbody>
-            {#if importResult.length === 0}
-              <tr>
-                <td colspan="4" class="no-data"> 暂无数据，请先输入账号信息并选择文件夹 </td>
-              </tr>
-            {:else}
-              {#each importResult as account}
-                <tr>
-                  <td>
-                    {account.BotName}
-                  </td>
-                  <td class:null-value={account.SteamLogin === null}>
-                    {account.SteamLogin ?? 'null'}
-                  </td>
-                  <td class:null-value={account.SteamPassword === null}>
-                    {account.SteamPassword ?? 'null'}
-                  </td>
-                  <td class:null-value={account.IdentitySecret === null}>
-                    {account.IdentitySecret ?? 'null'}
-                  </td>
-                  <td class:null-value={account.SharedSecret === null}>
-                    {account.SharedSecret ?? 'null'}
-                  </td>
-                </tr>
-              {/each}
-            {/if}
-          </tbody>
-        </table>
-      </div>
+  <Button class="w-[30%]" onclick={doImport}>{$_('importPage.start')}</Button>
+
+  <!-- 数据表格 -->
+  <div class="section">
+    <LabelFor forId="ipc" text="导入结果" />
+    <div class="table-wrapper">
+      <Table shadow hoverable striped>
+        <TableHead>
+          <TableHeadCell>机器人名</TableHeadCell>
+          <TableHeadCell>启用</TableHeadCell>
+          <TableHeadCell>账号</TableHeadCell>
+          <TableHeadCell>密码</TableHeadCell>
+          <TableHeadCell>IdentitySecret</TableHeadCell>
+          <TableHeadCell>SharedSecret</TableHeadCell>
+        </TableHead>
+
+        <TableBody>
+          {#if importResult.length === 0}
+            <TableBodyRow>
+              <TableBodyCell colspan={76}>
+                <Alert color="gray">
+                  {#snippet icon()}<InfoCircleSolid />{/snippet}
+                  <div class="space-x-1">
+                    <span>无数据</span>
+                  </div>
+                </Alert>
+              </TableBodyCell>
+            </TableBodyRow>
+          {:else}
+            {#each importResult as bot}
+              <TableBodyRow>
+                <TableBodyCell>{bot.BotName}</TableBodyCell>
+                <TableBodyCell>{toBooleanString(bot.Enabled)}</TableBodyCell>
+                <TableBodyCell>{toBooleanString(bot.SteamLogin)}</TableBodyCell>
+                <TableBodyCell>{toBooleanString(bot.SteamPassword)}</TableBodyCell>
+                <TableBodyCell>{toBooleanString(bot.IdentitySecret)}</TableBodyCell>
+                <TableBodyCell>{toBooleanString(bot.SharedSecret)}</TableBodyCell>
+              </TableBodyRow>
+            {/each}
+          {/if}
+        </TableBody>
+      </Table>
     </div>
   </div>
 </div>

@@ -11,7 +11,7 @@
         "author": "作者",
         "description": "简介"
     },
-    "selectorPage": {
+    "botListPage": {
         "online": "在线",
         "offline": "离线",
         "start": "上线",
@@ -29,6 +29,17 @@
         "ipcPassword": "IPC 密码",
         "ipcPasswordPlaceholder": "请输入 IPC 密码",
         "botListFilterPlaceholder": "搜索 BotName NickName 或者 SteamId"
+    },
+    "importPage": {
+    "accountInfo": "账号信息",
+        "title": "导入配置",
+        "description": "从 ASF 配置文件中导入机器人配置",
+        "selectFiles": "选择文件",
+        "selectedFiles": "已选择的文件",
+        "start": "开始导入",
+        "importSuccess": "导入成功",
+        "importFailed": "导入失败",
+        "noFilesSelected": "未选择任何文件"
     },
     "header": {
         "botList": "机器人列表",

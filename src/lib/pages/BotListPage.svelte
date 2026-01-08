@@ -1,26 +1,25 @@
 <script lang="ts">
-  import { browser } from '$app/environment';
-  import { getBotStatus, getBotList, startBots, stopBots } from '$lib/api';
+  import { getBotList, startBots, stopBots } from '$lib/api';
   import type { BotDetail } from '$lib/models/IpcGetBotListResponse';
   import { _ } from 'svelte-i18n';
 
+  import LabelFor from '$lib/components/LabelFor.svelte';
+  import PasswordInput from '$lib/components/PasswordInput.svelte';
   import {
     Alert,
     Button,
     ButtonGroup,
     Input,
     Skeleton,
+    Table,
     TableBody,
     TableBodyCell,
     TableBodyRow,
     TableHead,
-    Table,
-    TableHeadCell,
-    TableSearch
+    TableHeadCell
   } from 'flowbite-svelte';
   import { InfoCircleSolid } from 'flowbite-svelte-icons';
   import { onMount } from 'svelte';
-  import PasswordInput from '$lib/components/PasswordInput.svelte';
 
   interface Props {}
 
@@ -50,8 +49,6 @@
   });
 
   async function reloadBots() {
-    console.log(ipcPassword);
-
     try {
       ipcLoading = true;
 
@@ -117,30 +114,30 @@
 </script>
 
 <div class="space-y-4 p-4 mx-auto h-full w-full">
-  <label class="mb-2 font-medium block" for="ipc">{$_('selectorPage.ipcPassword')}</label>
-  <PasswordInput bind:value={ipcPassword} saveKey="asf-ui:ipc-password" />
+  <LabelFor forId="ipc" text={$_('botListPage.ipcPassword')} />
+  <PasswordInput id="ipc" bind:value={ipcPassword} saveKey="asf-ui:ipc-password" />
 
-  <div class="space-x-2 flex w-full">
-    <Button onclick={reloadBots} loading={ipcLoading}>{$_('selectorPage.reloadBotsList')}</Button>
-    <span class="flex-1"></span>
-  </div>
+  <Button class="w-[30%]" onclick={reloadBots} loading={ipcLoading}>
+    {$_('botListPage.reloadBotsList')}
+  </Button>
 
-  <label class="mb-2 font-medium block" for="password">{$_('selectorPage.botsList')}</label>
+  <LabelFor forId="filter" text={$_('botListPage.botsList')} />
   <Input
+    id="filter"
     clearable
-    placeholder={$_('selectorPage.botListFilterPlaceholder')}
+    placeholder={$_('botListPage.botListFilterPlaceholder')}
     bind:value={botListFilter}
   />
 
   <Table shadow hoverable striped>
     <TableHead>
-      <TableHeadCell>{$_('selectorPage.botName')}</TableHeadCell>
-      <TableHeadCell>{$_('selectorPage.nickName')}</TableHeadCell>
-      <TableHeadCell>{$_('selectorPage.steamId')}</TableHeadCell>
+      <TableHeadCell>{$_('botListPage.botName')}</TableHeadCell>
+      <TableHeadCell>{$_('botListPage.nickName')}</TableHeadCell>
+      <TableHeadCell>{$_('botListPage.steamId')}</TableHeadCell>
       <TableHeadCell>锁定</TableHeadCell>
       <TableHeadCell>受限</TableHeadCell>
       <TableHeadCell>令牌</TableHeadCell>
-      <TableHeadCell>{$_('selectorPage.operator')}</TableHeadCell>
+      <TableHeadCell>{$_('botListPage.operator')}</TableHeadCell>
     </TableHead>
 
     <TableBody>
@@ -154,7 +151,7 @@
                 {#snippet icon()}<InfoCircleSolid />{/snippet}
 
                 <div class="space-x-1">
-                  <span>{$_('selectorPage.ipcRequestFailed')}</span>
+                  <span>{$_('botListPage.ipcRequestFailed')}</span>
                   {#if ipcMessage}
                     <span>【{ipcMessage}】</span>
                   {/if}
@@ -165,7 +162,7 @@
                 {#snippet icon()}<InfoCircleSolid />{/snippet}
 
                 <div class="space-x-1">
-                  <span>{$_('selectorPage.noBotsFound')}</span>
+                  <span>{$_('botListPage.noBotsFound')}</span>
                 </div>
               </Alert>
             {/if}
@@ -198,7 +195,7 @@
                       startOrStopBot(bot.BotName, false);
                     }}
                   >
-                    {$_('selectorPage.stop')}
+                    {$_('botListPage.stop')}
                   </Button>
                 {:else}
                   <Button
@@ -207,7 +204,7 @@
                       startOrStopBot(bot.BotName, true);
                     }}
                   >
-                    {$_('selectorPage.start')}
+                    {$_('botListPage.start')}
                   </Button>
                 {/if}
               </ButtonGroup>

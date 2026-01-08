@@ -4,12 +4,13 @@
   import { EyeOutline, EyeSlashOutline } from 'flowbite-svelte-icons';
   import { onMount } from 'svelte';
   interface Props {
+    id?: string;
     value: string;
     placeholder?: string | null;
     saveKey?: string | null;
   }
 
-  let { value = $bindable(), placeholder, saveKey }: Props = $props();
+  let { id, value = $bindable(), placeholder, saveKey }: Props = $props();
 
   let showPassword: boolean = $state(false);
 
@@ -34,6 +35,7 @@
 </script>
 
 <Input
+  {id}
   type={showPassword ? 'text' : 'password'}
   {placeholder}
   bind:value

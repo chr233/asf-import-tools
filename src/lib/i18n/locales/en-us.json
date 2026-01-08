@@ -12,33 +12,37 @@
     "author": "Author",
     "description": "Description"
   },
-  "selectorPage": {
-    "view": "View",
-    "online": "Online",
-    "offline": "Offline",
-    "start": "Start",
-    "stop": "Stop",
-    "botName": "Bot Name",
-    "nickName": "Nickname",
+  "botListPage": {
+    "online": "在线",
+    "offline": "离线",
+    "start": "上线",
+    "stop": "下线",
+    "botName": "机器人名称",
+    "nickName": "昵称",
     "steamId": "Steam ID",
-    "operator": "Operator",
-    "ipcRequestFailed": "Failed to read bot info, please check if the IPC password is correct",
-    "noBotsFound": "No matching bots found",
-    "botsList": "Bot List",
-    "reloadBotsList": "Reload Bot List",
-    "startPage": "Start Page",
-    "startPagePlaceholder": "Please enter the start page URL",
+    "operator": "操作",
+    "ipcRequestFailed": "读取机器人信息失败, 请检查 IPC 密码是否正确",
+    "noBotsFound": "没有符合条件的机器人",
+    "botsList": "机器人列表",
+    "reloadBotsList": "重新加载机器人列表",
+    "startPage": "起始页",
     "ipcPassword": "IPC Password",
-    "ipcPasswordPlaceholder": "Please enter IPC password",
-    "openInNewWindow": "Open in new window",
-    "botListFilterPlaceholder": "Search BotName, NickName or SteamId"
+    "botListFilterPlaceholder": "搜索 BotName NickName 或者 SteamId"
   },
-  "viewerPage": {
-    "goBack": "Back",
-    "goForward": "Forward",
-    "reload": "Reload",
-    "locationPlaceholder": "URL to browse",
-    "visit": "Visit",
-    "openInNewWindow": "Open in browser tab"
+  "importPage": {
+    "accountInfo": "Account Information",
+    "title": "Import Configuration",
+    "description": "Import bot configuration from ASF configuration files",
+    "selectFiles": "Select Files",
+    "selectedFiles": "Selected Files",
+    "start": "Start Import",
+    "importSuccess": "Import Successful",
+    "importFailed": "Import Failed",
+    "noFilesSelected": "No Files Selected"
+  },
+  "header": {
+    "botList": "Bot List",
+    "import": "Import",
+    "about": "About"
   }
 }

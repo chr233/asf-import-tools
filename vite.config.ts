@@ -10,8 +10,8 @@ export default defineConfig({
 		port: 8645,
 
 		proxy: {
-			'/Api': { target: 'http://127.0.0.1:1500' },
-			'/swagger': { target: 'http://127.0.0.1:1500' }
+			'/Api': { target: 'http://100.105.249.10:1500' },
+			'/swagger': { target: 'http://100.105.249.10:1500' }
 		}
 	}
 });
