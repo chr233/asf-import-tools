@@ -1,9 +1,12 @@
 {
-    "title": "ASF 导入工具",
-    "home": "首页",
-    "about": "关于",
-    "changeLanguage": "切换语言",
-    "switchWindow": "切换窗口",
+    "header": {
+        "title": "ASF 导入工具",
+        "botList": "机器人列表",
+        "import": "导入",
+        "about": "关于",
+        "darkMode": "暗黑模式",
+        "changeLanguage": "切换语言"
+    },
     "aboutPage": {
         "title": "关于本项目",
         "project": "名称",
@@ -31,7 +34,7 @@
         "botListFilterPlaceholder": "搜索 BotName NickName 或者 SteamId"
     },
     "importPage": {
-    "accountInfo": "账号信息",
+        "accountInfo": "账号信息",
         "title": "导入配置",
         "description": "从 ASF 配置文件中导入机器人配置",
         "selectFiles": "选择文件",
@@ -40,10 +43,5 @@
         "importSuccess": "导入成功",
         "importFailed": "导入失败",
         "noFilesSelected": "未选择任何文件"
-    },
-    "header": {
-        "botList": "机器人列表",
-        "import": "导入",
-        "about": "关于"
     }
 }

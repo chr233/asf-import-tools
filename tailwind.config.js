@@ -2,14 +2,20 @@
  * @Author       : Chr_
  * @Date         : 2026-01-07 22:00:19
  * @LastEditors  : Chr_
- * @LastEditTime : 2026-01-07 22:00:23
+ * @LastEditTime : 2026-01-09 16:59:54
  * @Description  : 
  */
 /** @type {import('tailwindcss').Config} */
-module.exports = {
-  content: ["./src/**/*.{html,js,svelte,vue}"], // 定义需要扫描的模板文件路径
-  theme: {
-    extend: {}, // 自定义扩展
+export const content = ["./src/**/*.{html,js,svelte,vue}"];
+export const theme = {
+  screens: {
+    'xs': '480px', // 超小屏幕
+    'sm': '640px',
+    'md': '768px',
+    'lg': '1024px',
+    'xl': '1280px',
+    '2xl': '1536px',
   },
-  plugins: [], // 配置插件
-}
+  extend: {}, // 自定义扩展
+};
+export const plugins = [];

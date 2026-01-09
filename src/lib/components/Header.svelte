@@ -5,6 +5,8 @@
     FileImportOutline,
     GlobeOutline,
     LanguageOutline,
+    MoonOutline,
+    SunOutline,
     UsersGroupOutline
   } from 'flowbite-svelte-icons';
   import { _, locale } from 'svelte-i18n';
@@ -13,6 +15,7 @@
   }
 
   let { activeTab = $bindable('') }: Props = $props();
+  let isDarkMode: boolean = $state(false);
 
   const buttons = [
     { id: 'bot-list', icon: UsersGroupOutline, label: 'header.botList' },
@@ -20,10 +23,17 @@
     { id: 'about', icon: GlobeOutline, label: 'header.about' }
   ];
 
+  /**
+   * 切换页面
+   * @param tabId
+   */
   function selectTab(tabId: string) {
     activeTab = tabId;
   }
 
+  /**
+   * 切换语言
+   */
   function toggleLang() {
     if ($locale === 'en-us') {
       $locale = 'zh-cn';
@@ -35,14 +45,25 @@
       localStorage.setItem('locale', $locale);
     }
   }
+
+  /**
+   * 切换夜间模式
+   */
+  function toggleTheme(ev: MouseEvent) {
+    const target = ev.target as HTMLElement;
+    isDarkMode = target.ownerDocument.documentElement.classList.toggle('dark');
+
+    if (target.ownerDocument === document)
+      localStorage.setItem('THEME_PREFERENCE_KEY', isDarkMode ? 'dark' : 'light');
+  }
 </script>
 
 <div class="p-2 dark:bg-gray-800 shadow-md space-x-4 px-8 py-4 top-0 sticky z-10 flex items-center">
-  <!-- 标题：在小屏隐藏 -->
-  <h1 class="text-lg font-semibold sm:block hidden">{$_('title') ?? 'ASF Import Tools'}</h1>
+  <h1 class="text-lg font-semibold sm:block hidden">
+    {$_('header.title')}
+  </h1>
 
-  <!-- 按钮靠右显示，图标在小屏可见，标签在 sm 及以上显示 -->
-  <div class="ml-auto">
+  <div class="sm:block ml-auto hidden">
     <ButtonGroup>
       {#each buttons as btn}
         <Button
@@ -58,15 +79,40 @@
     </ButtonGroup>
   </div>
 
-  <DarkMode />
+  <div class="sm:hidden">
+    <ButtonGroup>
+      {#each buttons as btn}
+        <Button
+          pill
+          color={activeTab === btn.id ? 'primary' : 'light'}
+          size="xs"
+          onclick={() => selectTab(btn.id)}
+        >
+          <btn.icon />
+        </Button>
+      {/each}
+    </ButtonGroup>
+  </div>
 
-  <Button
-    color="light"
-    size="xs"
-    class="text-gray-500 dark:text-gray-400 border-0 focus-within:ring-0 dark:border-0 dark:focus-within:ring-0 dark:hover:border-0"
-    onclick={toggleLang}
-    title={$_('changeLanguage')}
-  >
-    <LanguageOutline />
-  </Button>
+  <div class="space-x-2 ml-auto flex items-center">
+    <ButtonGroup>
+      <Button
+        color="light"
+        size="xs"
+        pill
+        onclick={toggleTheme}
+        title={$_('header.changeLanguage')}
+      >
+        {#if isDarkMode}
+          <MoonOutline />
+        {:else}
+          <SunOutline />
+        {/if}
+      </Button>
+
+      <Button color="light" size="xs" pill onclick={toggleLang} title={$_('header.changeLanguage')}>
+        <LanguageOutline />
+      </Button>
+    </ButtonGroup>
+  </div>
 </div>

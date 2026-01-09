@@ -7,6 +7,6 @@
  */
 
 export interface MaFileData {
-  identity_secret?: string | null | undefined;
-  shared_secret?: string | null | undefined;
+  identity_secret?: string ;
+  shared_secret?: string ;
 }

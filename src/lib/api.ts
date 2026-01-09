@@ -2,12 +2,14 @@
  * @Author       : Chr_
  * @Date         : 2026-01-07 22:08:29
  * @LastEditors  : Chr_
- * @LastEditTime : 2026-01-08 14:52:21
+ * @LastEditTime : 2026-01-09 15:22:32
  * @Description  : 
  */
 
-import type { IpcGetBotsResponse } from './models/IpcGetBotListResponse';
+import type { ImportBotsPayload } from './models/ImportBotsPayload';
 import type { IpcBasicResponse } from './models/IpcBasicResponse';
+import type { IpcGetBotsResponse } from './models/IpcGetBotListResponse';
+import type { IpcImportBotsResponse } from './models/IpcImportBotsResponse';
 
 async function baseRequest<T>(
 	method: string = 'GET',
@@ -21,7 +23,25 @@ async function baseRequest<T>(
 			...(ipcPassword ? { Authentication: ipcPassword } : {})
 		}
 	});
-	const data = await response.json();
+	const data = await response.json() as Promise<T>;
+	return data;
+}
+
+async function basePayloadRequest<T,V>(
+	method: string = 'POST',
+	uri: string = '',
+	payload: V,
+	ipcPassword?: string
+): Promise<T> {
+	const response = await fetch(uri, {
+		method,
+		headers: {
+			'Content-Type': 'application/json',
+			...(ipcPassword ? { Authentication: ipcPassword } : {})
+		},
+		body:  JSON.stringify(payload) ,
+	});
+	const data = await response.json() as  Promise<T>;
 	return data;
 }
 
@@ -37,13 +57,15 @@ export async function getBotList(
 	return response;
 }
 
-export async function getBotStatus(
-	botNames: string = 'ASF',
+export async function importBots(
+	payload: ImportBotsPayload[],
+	allowReplace: boolean = false,
 	ipcPassword?: string
-): Promise<IpcGetBotsResponse> {
-	const response = await baseRequest<IpcGetBotsResponse>(
-		'GET',
-		`/Api/Bot/${botNames}`,
+): Promise<IpcImportBotsResponse> {
+	const response = await basePayloadRequest<IpcImportBotsResponse,ImportBotsPayload[]>(
+		'POST',
+		`/Api/Import/ImportBots?allowReplace=${allowReplace}`,
+		payload,
 		ipcPassword
 	);
 	return response;

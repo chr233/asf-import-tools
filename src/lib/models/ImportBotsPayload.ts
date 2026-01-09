@@ -12,7 +12,11 @@ export interface ImportBotsPayload {
   BotName: string;
   SteamLogin?: string;
   SteamPassword?: string;
-  IdentitySecret?: string;
-  SharedSecret?: string;
+  IdentitySecret?: string ;
+  SharedSecret?: string ;
+}
+
+export interface ImportBotsMessagePayload extends ImportBotsPayload {
   Message?: string;
+  Processed: boolean;
 }

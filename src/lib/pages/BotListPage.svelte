@@ -21,10 +21,6 @@
   import { InfoCircleSolid } from 'flowbite-svelte-icons';
   import { onMount } from 'svelte';
 
-  interface Props {}
-
-  let {}: Props = $props();
-
   let ipcPassword: string = $state('');
 
   let ipcMessage: string = $state('');
@@ -148,22 +144,22 @@
               <Skeleton size="md" class="my-8" />
             {:else if botsList.length === 0}
               <Alert color="red">
-                {#snippet icon()}<InfoCircleSolid />{/snippet}
+                {#snippet icon()}
+                  <InfoCircleSolid />
+                {/snippet}
 
-                <div class="space-x-1">
-                  <span>{$_('botListPage.ipcRequestFailed')}</span>
-                  {#if ipcMessage}
-                    <span>【{ipcMessage}】</span>
-                  {/if}
-                </div>
+                <span>{$_('botListPage.ipcRequestFailed')}</span>
+                {#if ipcMessage}
+                  <span>【{ipcMessage}】</span>
+                {/if}
               </Alert>
             {:else}
               <Alert color="orange">
-                {#snippet icon()}<InfoCircleSolid />{/snippet}
+                {#snippet icon()}
+                  <InfoCircleSolid />
+                {/snippet}
 
-                <div class="space-x-1">
-                  <span>{$_('botListPage.noBotsFound')}</span>
-                </div>
+                <span>{$_('botListPage.noBotsFound')}</span>
               </Alert>
             {/if}
           </TableBodyCell>
