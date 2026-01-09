@@ -6,11 +6,7 @@ on:
       - "*"
 
 env:
-  PROJECT_NAME: "ASFIpcBrowser"
-  REPO_NAME: "ASFIpcBrowser"
-  PLUGIN_NAME: "ASFIpcBrowser.dll"
-  UI_NAME: "asf-ipc-browser-ui"
-  DOTNET_SDK_VERSION: 9.0
+  PROJECT_NAME: asf-import-tools
   NODE_JS_VERSION: 'lts/*'
 
 jobs:
@@ -20,9 +16,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GH_TOKEN }}
-          submodules: recursive
 
       - name: Setup Node.js with npm
         uses: actions/setup-node@v4.1.0
@@ -37,95 +30,30 @@ jobs:
         run: npm -v
 
       - name: Install npm modules
-        run: npm ci --no-progress --prefix ${{ env.UI_NAME }}
+        run: npm ci
 
-      - name: Publish ${{ env.UI_NAME }}
+      - name: Publish
         run: |
-          npm run-script generateInfo --no-progress --prefix ${{ env.UI_NAME }}
-          npm run-script build --no-progress --prefix ${{ env.UI_NAME }}
+          npm run-script generateInfo
+          npm run-script build
 
-      - name: Upload ${{ env.UI_NAME }}
+          mkdir dist
+          7z a -bd -slp -tzip -mm=Deflate -mx=5 -mfb=150 -mpass=10 "dist/${{ env.PROJECT_NAME }}.zip" "build/*" 
+
+      - name: Upload
         uses: actions/upload-artifact@v4.6.0
         with:
           if-no-files-found: error
-          name: plugin-ui
-          path: ${{ env.UI_NAME }}/build
-
-  publish-plugin:
-    needs: publish-ui
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4.1.7
-        with:
-          token: ${{ secrets.GH_TOKEN }}
-          submodules: recursive
-
-      - name: Setup .NET Core
-        uses: actions/setup-dotnet@v4.0.1
-        with:
-          dotnet-version: ${{ env.DOTNET_SDK_VERSION }}
-
-      - name: Verify .NET Core
-        run: dotnet --info
-
-      - name: Restore packages in preparation for ${{ env.PROJECT_NAME }} publishing
-        run: dotnet restore ${{ env.PROJECT_NAME }} -p:ContinuousIntegrationBuild=true --nologo
-
-      - name: Publish ${{ env.PROJECT_NAME }}
-        run: dotnet publish ${{ env.PROJECT_NAME }} -o:"./publish/" -c:Release
-
-      - name: Download previously built ASF-ui
-        uses: actions/download-artifact@v4.1.8
-        with:
-          name: plugin-ui
-          path: ./publish/${{ env.PROJECT_NAME }}
-
-      - name: Collect files
-        shell: pwsh
-        run: |
-          if (-Not (Test-Path -Path ./tmp)) {
-              New-Item -ItemType Directory -Path ./tmp
-          }
-          else {
-              Remove-Item -Path ./tmp/* -Recurse -Force
-          }
-
-          Copy-Item -Path .\publish\${{ env.PLUGIN_NAME }} -Destination .\tmp\ 
-          Copy-Item -Path .\publish\${{ env.PROJECT_NAME }} -Destination .\tmp\ -Recurse
-
-          $dirs = Get-ChildItem -Path ./publish -Directory
-          foreach ($dir in $dirs) {
-              $subFiles = Get-ChildItem -Path $dir.FullName -File -Filter *.resources.dll
-              
-              foreach ($file in $subFiles) {
-                  $resourceName = [System.IO.Path]::GetFileNameWithoutExtension($file.Name)
-                  $opDir = "./tmp/$resourceName"
-                  if (-Not (Test-Path -Path $opDir)) {
-                      New-Item -ItemType Directory -Path $opDir
-                  }
-
-                  $destinationPath = ".\tmp\$resourceName\$($dir.Name).dll"
-                  Copy-Item -Path $file -Destination $destinationPath
-
-                  Write-Output "Copy resource DLL $($file.FullName) -> $destinationPath"
-              }
-          }
-
-      - name: Zip files
-        run: 7z a -bd -slp -tzip -mm=Deflate -mx=5 -mfb=150 -mpass=10 "./dist/${{ env.REPO_NAME }}.zip" "./tmp/*"
-
-      - name: Upload ${{ env.PROJECT_NAME }}
-        continue-on-error: true
-        uses: actions/upload-artifact@v4.3.6
-        with:
-          if-no-files-found: error
           name: ${{ env.PROJECT_NAME }}.zip
-          path: ./dist/${{ env.PROJECT_NAME }}.zip
+          path: dist/${{ env.PROJECT_NAME }}.zip
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: build
 
   release:
-    needs: publish-plugin
+    needs: publish-ui
     runs-on: ubuntu-latest
 
     steps:
