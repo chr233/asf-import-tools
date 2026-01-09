@@ -47,7 +47,7 @@ jobs:
           path: dist/${{ env.PROJECT_NAME }}.zip
 
       - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v1
+        uses: actions/upload-pages-artifact@v4
         with:
           path: build
 
