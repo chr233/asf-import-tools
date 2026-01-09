@@ -1,4 +1,4 @@
-name: publish
+name: publish-page
 
 on:
   push:
