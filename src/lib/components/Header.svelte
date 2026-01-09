@@ -9,6 +9,7 @@
     SunOutline,
     UsersGroupOutline
   } from 'flowbite-svelte-icons';
+  import { onMount } from 'svelte';
   import { _, locale } from 'svelte-i18n';
   interface Props {
     activeTab?: string;
@@ -46,6 +47,8 @@
     }
   }
 
+  const DARK_MODE_KEY = 'dark-mode';
+
   /**
    * 切换夜间模式
    */
@@ -53,13 +56,27 @@
     const target = ev.target as HTMLElement;
     isDarkMode = target.ownerDocument.documentElement.classList.toggle('dark');
 
-    if (target.ownerDocument === document)
-      localStorage.setItem('THEME_PREFERENCE_KEY', isDarkMode ? 'dark' : 'light');
+    localStorage.setItem(DARK_MODE_KEY, isDarkMode ? 'dark' : 'light');
   }
+
+  onMount(() => {
+    if (DARK_MODE_KEY in localStorage) {
+      isDarkMode = localStorage.getItem(DARK_MODE_KEY) === 'dark';
+      isDarkMode
+        ? window.document.documentElement.classList.add('dark')
+        : window.document.documentElement.classList.remove('dark');
+    } else {
+      if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        window.document.documentElement.classList.add('dark');
+      }
+    }
+  });
 </script>
 
-<div class="p-2 dark:bg-gray-800 shadow-md space-x-4 px-8 py-4 top-0 sticky z-10 flex items-center">
-  <h1 class="text-lg font-semibold sm:block hidden">
+<div
+  class="p-2 bg-white dark:bg-gray-800 shadow-md space-x-4 px-8 py-4 top-0 sticky z-10 flex items-center opacity-90"
+>
+  <h1 class="text-lg dark:text-white font-semibold sm:block hidden">
     {$_('header.title')}
   </h1>
 

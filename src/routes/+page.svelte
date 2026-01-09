@@ -12,7 +12,7 @@
 </script>
 
 <div
-  class="text-gray-500 bg-white dark:bg-gray-900 dark:text-gray-400 sticky flex h-full w-full flex-col"
+  class="text-gray-500  sticky flex h-full w-full flex-col"
 >
   {#await initLocale()}
     <div transition:fade={{ duration: 300 }} class="inset-0 absolute z-50">
@@ -27,8 +27,9 @@
       <ImportPage />
     {:else if activeTab === 'about'}
       <AboutPage />
+    {:else}
+      <ErrorCard error={`Unknown tab: ${activeTab}`} />
     {/if}
-
   {:catch error}
     <ErrorCard {error} />
   {/await}

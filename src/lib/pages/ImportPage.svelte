@@ -35,6 +35,8 @@
   let allowFarming: boolean = $state(true);
   let allowReplace: boolean = $state(false);
 
+  let isBusy: boolean = $state(false);
+
   let importResult: ImportBotsMessagePayload[] = $state([]);
   let importProcess: number = $derived.by(() => {
     if (importResult.length === 0) {
@@ -57,7 +59,7 @@
       accountText = content;
     };
     reader.onerror = () => {
-      alert('文件读取失败');
+      alert($_('importPage.fileReadFailed'));
     };
     reader.readAsText(file);
   }
@@ -193,56 +195,60 @@
     importResult = [];
 
     if (!accountText.trim()) {
-      alert('请输入账号信息');
+      alert($_('importPage.needInputAccountText'));
       return;
     }
 
-    const fileMap: { [key: string]: File } = {};
-    if (selectMaFiles) {
-      for (const file of selectMaFiles) {
-        const fileName = file.name.toString().toLowerCase();
-        fileMap[fileName] = file;
+    isBusy = true;
+    try {
+      const fileMap: { [key: string]: File } = {};
+      if (selectMaFiles) {
+        for (const file of selectMaFiles) {
+          const fileName = file.name.toString().toLowerCase();
+          fileMap[fileName] = file;
+        }
       }
-    }
 
-    // 解析账号信息
-    importResult = await parseAccounts(fileMap);
+      // 解析账号信息
+      importResult = await parseAccounts(fileMap);
 
-    // 按 10 个一组分批调用 importBots，顺序执行并更新每个 bot 的 Message 字段
-    const batchSize = 10;
-    for (let i = 0; i < importResult.length; i += batchSize) {
-      const batch = importResult.slice(i, i + batchSize);
+      // 按 10 个一组分批调用 importBots，顺序执行并更新每个 bot 的 Message 字段
+      const batchSize = 10;
+      for (let i = 0; i < importResult.length; i += batchSize) {
+        const batch = importResult.slice(i, i + batchSize);
 
-      try {
-        const response = await importBots(batch, allowReplace, ipcPassword);
+        try {
+          const response = await importBots(batch, allowReplace, ipcPassword);
 
-        if (response?.Result && response.Success) {
-          for (const botName in response.Result) {
-            const payload = batch.find((b) => b.BotName === botName);
+          if (response?.Result && response.Success) {
+            for (const botName in response.Result) {
+              const payload = batch.find((b) => b.BotName === botName);
 
-            console.log(payload, botName);
+              console.log(payload, botName);
 
-            if (payload) {
-              var { Success, Message } = response.Result[botName];
+              if (payload) {
+                var { Success, Message } = response.Result[botName];
 
-              payload.Message = Message || (Success ? '导入成功' : '导入失败');
-              payload.Processed = true;
+                payload.Message =
+                  Message ||
+                  (Success ? $_('importPage.importSuccess') : $_('importPage.importFailed'));
+                payload.Processed = true;
+              }
             }
+          } else {
+            throw response.Message || $_('importPage.networkError');
           }
-        } else {
-          throw response.Message || '网络错误';
-        }
-      } catch (err: any) {
-        const msg = err?.message ?? err.toString() ?? '未知错误';
-        for (const bot of batch) {
-          bot.Message = `导入错误: ${msg}`;
-          bot.Processed = true;
+        } catch (err: any) {
+          const msg = err?.message ?? err.toString() ?? $_('importPage.unknownError');
+          for (const bot of batch) {
+            bot.Message = `${$_('importPage.importFailed')}: ${msg}`;
+            bot.Processed = true;
+          }
         }
       }
-
+    } finally {
+      isBusy = false;
     }
-
-    console.log('导入完成', importResult);
   }
 
   function toBooleanString(value: any) {
@@ -260,27 +266,31 @@
     id="accounts"
     bind:value={accountText}
     ondrop={onAccountFileDrop}
-    class="min-h-30 p-1 w-full"
-    placeholder="每行一个账号，用 ---- 或者, 分隔账号名和密码&#10;例如：username----password"
+    class="min-h-30 p-1 dark:bg-gray-700 w-full"
+    placeholder={$_('importPage.accountInfoPlaceholder')}
   />
 
   <Fileupload
     id="accountFile"
+    class="border-2 border-dashed"
     clearable
     bind:files={selectAccountFiles}
     ondrop={onAccountFileDrop}
     onchange={onSelectAccounts}
+    
   />
 
   <Helper class="text-sm text-orange-500 dark:text-orange-400 my-2 text-right">
-    共 {accountCount} 个机器人账号, 支持拖拽文件到文本框中自动读取内容
+    {$_('importPage.total')}
+    {accountCount}
+    {$_('importPage.total2')}
   </Helper>
 
   <!-- 令牌输入区域 -->
-  <LabelFor forId="maFiles" text="令牌信息" />
+  <LabelFor forId="maFiles" text={$_('importPage.2faInfo')} />
   <Dropzone
     id="maFiles"
-    class="p-4 h-[100px]"
+    class="p-4 h-[100px] border-2"
     bind:files={selectMaFiles}
     webkitdirectory
     multiple
@@ -289,28 +299,36 @@
     <UploadOutline class="mb-2 h-6 w-6 text-gray-400" />
 
     {#if !selectMaFiles || selectMaFiles.length === 0}
-      <span>点击 <strong>此处</strong> 或者 <strong>拖拽文件</strong> 到此上传</span>
+      <span class="text-sm">
+        {$_('importPage.dropZoneText')}
+      </span>
     {:else}
       <div class="space-x-4 flex-col">
-        <span>已选择 {selectMaFiles.length} 个令牌文件</span>
-        <Button size="xs" color="light" onclick={onClearMaFiles}>清除选择</Button>
+        <span class="text-sm">
+          {$_('importPage.select')}
+          {selectMaFiles.length}
+          {$_('importPage.select2')}
+        </span>
+        <Button size="xs" color="light" onclick={onClearMaFiles}>
+          {$_('importPage.clearSelection')}
+        </Button>
       </div>
     {/if}
   </Dropzone>
 
   <!-- 上传选项 -->
-  <LabelFor text="上传选项" />
+  <LabelFor text={$_('importPage.uploadOptions')} />
   <div class="gap-3 flex flex-wrap">
-    <Checkbox bind:checked={enableBot}>启用机器人</Checkbox>
-    <Checkbox bind:checked={allowFarming}>允许挂卡</Checkbox>
-    <Checkbox bind:checked={allowReplace}>允许覆盖已有机器人</Checkbox>
+    <Checkbox bind:checked={enableBot}>{$_('importPage.enableBot')}</Checkbox>
+    <Checkbox bind:checked={allowFarming}>{$_('importPage.allowFarming')}</Checkbox>
+    <Checkbox bind:checked={allowReplace}>{$_('importPage.allowOverride')}</Checkbox>
   </div>
 
   <!-- 上传 -->
   <div class="space-x-4 flex w-full items-center justify-between">
-    <Button class="w-[30%]" onclick={doImport}>{$_('importPage.start')}</Button>
+    <Button class="w-full" loading={isBusy} onclick={doImport}>{$_('importPage.start')}</Button>
     {#if importResult.length > 0}
-      <span>上传进度 {importProcess}%</span>
+      <span>{$_('importPage.importProcess')} {importProcess}%</span>
       <div class="flex-1">
         <Progressbar progress={importProcess} size="h-6" />
       </div>
@@ -319,15 +337,15 @@
 
   <!-- 数据表格 -->
   <div class="section">
-    <LabelFor forId="ipc" text="导入结果" />
+    <LabelFor forId="ipc" text={$_('importPage.importResult')} />
     <div class="table-wrapper">
       <Table shadow hoverable striped>
         <TableHead>
-          <TableHeadCell>机器人</TableHeadCell>
-          <TableHeadCell>账号</TableHeadCell>
-          <TableHeadCell>密码</TableHeadCell>
-          <TableHeadCell>令牌</TableHeadCell>
-          <TableHeadCell>导入结果</TableHeadCell>
+          <TableHeadCell>{$_('importPage.botName')}</TableHeadCell>
+          <TableHeadCell>{$_('importPage.login')}</TableHeadCell>
+          <TableHeadCell>{$_('importPage.password')}</TableHeadCell>
+          <TableHeadCell>{$_('importPage.2fa')}</TableHeadCell>
+          <TableHeadCell>{$_('importPage.importResult')}</TableHeadCell>
         </TableHead>
 
         <TableBody>
@@ -336,7 +354,7 @@
               <TableBodyCell colspan={6}>
                 <Alert color="gray">
                   {#snippet icon()}<InfoCircleSolid />{/snippet}
-                    <span>无数据</span>
+                  <span>{$_('importPage.noData')}</span>
                 </Alert>
               </TableBodyCell>
             </TableBodyRow>

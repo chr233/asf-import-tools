@@ -113,7 +113,7 @@
   <LabelFor forId="ipc" text={$_('botListPage.ipcPassword')} />
   <PasswordInput id="ipc" bind:value={ipcPassword} saveKey="asf-ui:ipc-password" />
 
-  <Button class="w-[30%]" onclick={reloadBots} loading={ipcLoading}>
+  <Button class="w-full" onclick={reloadBots} loading={ipcLoading}>
     {$_('botListPage.reloadBotsList')}
   </Button>
 
@@ -130,9 +130,9 @@
       <TableHeadCell>{$_('botListPage.botName')}</TableHeadCell>
       <TableHeadCell>{$_('botListPage.nickName')}</TableHeadCell>
       <TableHeadCell>{$_('botListPage.steamId')}</TableHeadCell>
-      <TableHeadCell>锁定</TableHeadCell>
-      <TableHeadCell>受限</TableHeadCell>
-      <TableHeadCell>令牌</TableHeadCell>
+      <TableHeadCell>{$_('botListPage.lock')}</TableHeadCell>
+      <TableHeadCell>{$_('botListPage.limit')}</TableHeadCell>
+      <TableHeadCell>{$_('botListPage.2fa')}</TableHeadCell>
       <TableHeadCell>{$_('botListPage.operator')}</TableHeadCell>
     </TableHead>
 
