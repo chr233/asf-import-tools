@@ -5,6 +5,10 @@ on:
     tags:
       - "*"
 
+permissions:
+  contents: read
+  pull-requests: write
+
 env:
   PROJECT_NAME: asf-import-tools
   NODE_JS_VERSION: 'lts/*'
@@ -35,7 +39,7 @@ jobs:
       - name: Publish
         run: |
           npm run-script generateInfo
-          npm run-script build
+          npm run-script deploy
 
           mkdir dist
           7z a -bd -slp -tzip -mm=Deflate -mx=5 -mfb=150 -mpass=10 "dist/${{ env.PROJECT_NAME }}.zip" "build/*" 
@@ -45,11 +49,6 @@ jobs:
         with:
           name: ${{ env.PROJECT_NAME }}.zip
           path: dist/${{ env.PROJECT_NAME }}.zip
-
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v4
-        with:
-          path: build
 
   release:
     needs: publish-ui
