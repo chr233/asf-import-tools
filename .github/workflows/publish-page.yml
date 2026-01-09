@@ -39,7 +39,7 @@ jobs:
       - name: Publish
         run: |
           npm run-script generateInfo
-          npm run-script deploy
+          npm run-script build
 
           mkdir dist
           7z a -bd -slp -tzip -mm=Deflate -mx=5 -mfb=150 -mpass=10 "dist/${{ env.PROJECT_NAME }}.zip" "build/*" 
@@ -49,6 +49,11 @@ jobs:
         with:
           name: ${{ env.PROJECT_NAME }}.zip
           path: dist/${{ env.PROJECT_NAME }}.zip
+
+      - name: Publish Github Pages
+        run: |
+          mv .github/svelte.config.js svelte.config.js
+          npm run-script deploy
 
   release:
     needs: publish-ui
