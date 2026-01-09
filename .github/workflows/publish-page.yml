@@ -69,8 +69,7 @@ jobs:
         uses: ncipollo/release-action@v1.20.0
         with:
           artifacts: "out/*"
-          makeLatest: false
-          prerelease: true
+          makeLatest: true
           tag: ${{ github.ref_name }}
           name: ${{ env.PROJECT_NAME }} ${{ github.ref_name }}
           body: |
