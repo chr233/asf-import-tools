@@ -9,7 +9,6 @@ export default defineConfig({
 	server: {
 		host: "0.0.0.0",
 		port: 8645,
-		allowedHosts : ["win11-leenzee.ts"],
 
 		proxy: {
 			'/Api': { target: 'http://100.105.249.10:1500' },
