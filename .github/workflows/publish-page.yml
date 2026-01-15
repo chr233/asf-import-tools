@@ -24,7 +24,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
       - name: Setup Node.js with npm
-        uses: actions/setup-node@v6.1.0
+        uses: actions/setup-node@v6.2.0
         with:
           check-latest: true
           node-version: ${{ env.NODE_JS_VERSION }}
@@ -52,7 +52,7 @@ jobs:
           path: dist/${{ env.PROJECT_NAME }}.zip
 
       - name: Publish to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
+        uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./build
